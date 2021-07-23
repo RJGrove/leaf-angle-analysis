@@ -1,0 +1,36 @@
+import numpy as np
+from matplotlib import pyplot
+import matplotlib.pyplot as plt
+from pandas import DataFrame
+import pandas as pd
+import seaborn as sns
+
+data1 = pd.read_csv('/home/schnablelab/Downloads/Manual_DataMedian60.csv') #Read manual data set
+data2 = pd.read_csv('/home/schnablelab/Downloads/PlantCV_DataMedian60.csv') #Read 2D data set
+print(data1)
+print(data2)
+
+r2 = [] #Create an empty list to append correlation value into
+
+###Correlation between the median
+correlation_matrix = np.corrcoef(data1['Median'], data2['Median'])
+
+correlation_xy = correlation_matrix[0, 1]
+r_squared = correlation_xy**2
+
+r2.append(r_squared)
+
+r2 = round(r2[0],4)
+
+###Create a scatter plot with linear regression line
+df = plt.scatter(data1['Median'], data2['Median'])
+plt.title('Correlation of Median Leaf Values', size = 19)
+plt.text(16, 56, r2, fontsize=20)
+plt.plot(data1['Median'], data2['Median'], 'o', color = 'blue')
+plt.style.use('ggplot')
+m, b = np.polyfit(data1['Median'], data2['Median'], 1)
+plt.plot(data1['Median'], m*data1['Median'] + b)
+
+sns.regplot(data1['Median'], data2['Median'], ci = 80, truncate=False)
+plt.xlabel('2D Images', size = 18)
+plt.ylabel('Manual', size = 18)
