@@ -1,0 +1,136 @@
+import os
+import cv2
+import numpy as np
+from plantcv.plantcv import plot_image
+from plantcv.plantcv import print_image
+from plantcv import plantcv
+from plantcv import plantcv as pcv
+import pandas as pd
+
+###Ten plants taken at three different time points
+image = ['/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-051-623-1_2021-01-12_14-12-32.677_13030600/Vis_SV_108/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-051-623-1_2021-01-13_08-47-46.858_13036600/Vis_SV_288/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-051-623-1_2021-01-14_08-47-42.440_13054600/Vis_SV_324/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-052-4601-1_2021-01-12_14-14-02.715_13030700/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-052-4601-1_2021-01-13_08-49-14.906_13036700/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-052-4601-1_2021-01-14_08-49-10.559_13054700/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-053-623-2_2021-01-12_14-15-08.451_13030800/Vis_SV_216/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-053-623-2_2021-01-13_08-50-21.026_13036800/Vis_SV_216/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-053-623-2_2021-01-14_08-50-16.629_13054800/Vis_SV_216/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-054-4601-2_2021-01-12_14-18-17.679_13030900/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-054-4601-2_2021-01-13_08-53-12.089_13036900/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-054-4601-2_2021-01-14_08-53-20.998_13054900/Vis_SV_216/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-055-623-3_2021-01-12_14-20-25.972_13031000/Vis_SV_144/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-055-623-3_2021-01-13_08-55-20.460_13037000/Vis_SV_144/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-055-623-3_2021-01-14_08-55-36.150_13055000/Vis_SV_144/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-056-4601-3_2021-01-12_14-22-35.608_13031100/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-056-4601-3_2021-01-13_08-57-30.069_13037100/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-056-4601-3_2021-01-14_08-57-45.714_13055100/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-057-623-4_2021-01-12_14-24-45.439_13031200/Vis_SV_108/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-057-623-4_2021-01-13_08-59-39.341_13037200/Vis_SV_108/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-057-623-4_2021-01-14_08-59-55.605_13055200/Vis_SV_72/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-058-4601-4_2021-01-12_14-26-55.664_13031300/Vis_SV_288/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-058-4601-4_2021-01-13_09-01-49.164_13037300/Vis_SV_144/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-058-4601-4_2021-01-14_09-02-05.836_13055300/Vis_SV_216/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-059-623-5_2021-01-12_14-29-05.574_13031400/Vis_SV_216/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-059-623-5_2021-01-13_09-03-58.608_13037400/Vis_SV_0/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-059-623-5_2021-01-14_09-04-15.062_13055400/Vis_SV_0/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-060-4601-5_2021-01-12_14-31-14.602_13031500/Vis_SV_108/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-060-4601-5_2021-01-13_09-06-08.655_13037500/Vis_SV_108/0_0_0.png',
+         '/media/schnablelab/RG_EXT/GroundTruthImages/1-12-21_MI_112-060-4601-5_2021-01-14_09-06-24.395_13055500/Vis_SV_108/0_0_0.png']
+         
+    
+df = {}
+
+for plant in image:
+    
+    fileName = plant.split('/')[5]
+    img,_,_ = pcv.readimage(filename = plant)
+
+    s = pcv.rgb2gray_hsv(rgb_img=img, channel='s')
+    
+    s_thresh = pcv.threshold.binary(gray_img=s, threshold=30, max_value=255, object_type='light')
+    
+    s_mblur = pcv.median_blur(gray_img=s_thresh, ksize=5)
+    s_cnt = pcv.median_blur(gray_img=s_thresh, ksize=5)
+
+    bs = pcv.logical_and(bin_img1=s_mblur, bin_img2=s_cnt)
+    
+    b_thresh = pcv.threshold.binary(gray_img=s_thresh, threshold=160, max_value=255, 
+                                object_type='light')
+    
+    bs = pcv.logical_or(bin_img1=s_mblur, bin_img2=b_thresh)
+    
+    masked = pcv.apply_mask(img=img, mask=bs, mask_color='black')
+
+    # Set global debug behavior to None (default), "print" (to file), 
+    # or "plot" (Jupyter Notebooks or X11)
+
+    pcv.params.debug = "print"
+
+    ###Crop image
+    img = pcv.crop(img=bs, x=1300, y=4200, h=1350, w=1600)
+    
+    ###Gaussian blur
+    s_mblur = pcv.gaussian_blur(img=img, ksize=(51, 51), sigma_x=0, sigma_y=None)
+
+    skeleton = pcv.morphology.skeletonize(mask=s_mblur)
+    
+    pcv.plot_image(skeleton)
+    
+    prune_skeleton, segmented_img, edge_objects = pcv.morphology.prune(skel_img=skeleton, size=100)
+    
+    filled_img = pcv.morphology.fill_segments(mask=s_mblur, objects=edge_objects, label="default")
+    
+    branch_pts_mask = pcv.morphology.find_branch_pts(skel_img=prune_skeleton, mask=s_mblur, label="default")
+    
+    tip_pts_mask = pcv.morphology.find_tips(skel_img=prune_skeleton, mask=None, label="default")
+    
+    pcv.params.line_thickness = 3 
+    
+    leaf_obj, stem_obj = pcv.morphology.segment_sort(skel_img=prune_skeleton, 
+                                                 objects=edge_objects,
+                                                 mask=s_mblur)
+    
+    segmented_img, labeled_img = pcv.morphology.segment_id(skel_img=prune_skeleton,
+                                                       objects=leaf_obj,
+                                                       mask=s_mblur)
+    
+    pcv.params.text_size=.8 # (default text_size=.55)
+    pcv.params.text_thickness=3 # (defaul text_thickness=2) 
+
+    segmented_img, labeled_img = pcv.morphology.segment_id(skel_img=prune_skeleton,
+                                                            objects=leaf_obj,
+                                                                mask=s_mblur)
+    
+    ###Segment angles
+    segment_angle = pcv.morphology.segment_angle(segmented_img=segmented_img, 
+                                           objects=leaf_obj, label="default")
+    
+    pcv.plot_image(segment_angle)
+    
+    plant_angles = list(pcv.outputs.observations['default']['segment_angle']['value'])[0:4]
+    print(plant_angles)
+
+    ###Absolute values of the angles
+    plant_angles2 = []
+    
+    for angle in plant_angles:
+        absAng = abs(angle)
+        realAng = 90 - absAng
+        plant_angles2.append(absAng)
+    
+    ###plant_angles2 is the absolute values of plant_angles
+    df[fileName] = plant_angles2
+    
+    fullDf = pd.DataFrame(df)
+    fullDf = fullDf.T
+
+df[fileName] = plant_angles2
+    
+fullDf = pd.DataFrame(df)
+fullDf = fullDf.T
+
+###Median values for the first four
+fullDf.columns = ['Leaf1','Leaf2','Leaf3','Leaf4']
+fullDf['Median1to4']= fullDf.median(axis=1)
