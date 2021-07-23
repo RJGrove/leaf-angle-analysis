@@ -1,2 +1,14 @@
 # leaf-angle-analysis
-All images within the code were processed as 2D images using open-source PlantCV package. Leaf angles for manual, 3D reconstruction, and 2D images are presented in the several .csv files
+Implementation of the research:
+- 2D Image Analysis in Correlation to 3D Restruction Leaf Angles in Sorghum
+- PlantCV Package Process
+
+### Packages and Programs
+- Jupyter Notebook
+- PlantCV
+- NumPy
+- Pandas PyData
+- Matplotlib
+
+## License
+See the LICENSE file.
